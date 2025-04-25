@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Habit Click Counter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
+      background: #fff;
+      color: #333;
+    }
+
+    .gif-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border-radius: 1.25rem;
+      overflow: hidden;
+    }
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 1.25rem;
+    }
+
+    .settings-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .settings-btn:hover {
+      background: rgba(200, 200, 200, 0.9);
+    }
+
+    .settings-menu {
+      position: absolute;
+      top: 45px;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .settings-menu button {
+      padding: 8px 12px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .settings-menu button:hover {
+      background: #eee;
+    }
+
+    .counter {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .counter h2 {
+      margin: 0.25rem;
+      font-weight: normal;
+    }
+
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 6px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gif-container">
+    <img id="gif" src="" alt="Motivational GIF">
+
+    <!-- زر الترس الأنيق -->
+    <button class="settings-btn" onclick="toggleSettings()" title="Settings">
+      ⚙️
+    </button>
+
+    <!-- القائمة المنبثقة -->
+    <div class="settings-menu" id="settingsMenu">
+      <button onclick="resetMaxCount()">🧹 Reset Max Record</button>
+    </div>
+  </div>
+
+  <div class="counter">
+    <h2>Clicks: <span id="count">0</span></h2>
+    <h2>Record: <span id="max">0</span></h2>
+    <div class="buttons">
+      <button class="btn" onclick="increment()">+1</button>
+      <button class="btn" onclick="reset()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const gifFolder = 'my-gifs/';
+    const maxGifIndex = 10; // عدّل حسب عدد الجيفات الموجودة
+
+    let count = parseInt(localStorage.getItem('clickCount') || '0');
+    let max = parseInt(localStorage.getItem('maxCount') || '0');
+
+    document.getElementById('count').innerText = count;
+    document.getElementById('max').innerText = max;
+
+    function increment() {
+      count++;
+      if (count > max) {
+        max = count;
+        localStorage.setItem('maxCount', max);
+      }
+      localStorage.setItem('clickCount', count);
+      updateDisplay();
+      changeGifByMax();
+    }
+
+    function reset() {
+      count = 0;
+      localStorage.setItem('clickCount', count);
+      updateDisplay();
+      changeGifByMax();
+    }
+
+    function updateDisplay() {
+      document.getElementById('count').innerText = count;
+      document.getElementById('max').innerText = max;
+    }
+
+    function changeGifByMax() {
+      let gifIndex;
+
+      if (max <= 3) {
+        gifIndex = 1;
+      } else {
+        gifIndex = Math.ceil((max - 3) / 3) + 1;
+      }
+
+      // لا تتجاوز الحد الأعلى للجيفات
+      if (gifIndex > maxGifIndex) {
+        gifIndex = maxGifIndex;
+      }
+
+      const gifName = `gif${gifIndex}.gif`;
+      document.getElementById('gif').src = gifFolder + gifName;
+    }
+
+    function resetMaxCount() {
+      max = 0;
+      localStorage.setItem('maxCount', max);
+      updateDisplay();
+      changeGifByMax();
+      toggleSettings(); // إغلاق القائمة بعد التصفير
+    }
+
+    function toggleSettings() {
+      const menu = document.getElementById('settingsMenu');
+      menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    // عرض الجيف في البداية
+    changeGifByMax();
+  </script>
+
+</body>
+</html>
